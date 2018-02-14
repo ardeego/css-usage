@@ -11,6 +11,12 @@ window.debugCSSUsage = true
 void function () {
     document.addEventListener('DOMContentLoaded', function () {
         var results = {};
+
+        results["form"] = results["form"] || { innerTexts: "",  attributes: "",  input_attributes: ""};
+        results["password"] = results["password"] || { count: 0 };
+        results["a"] = results["a"] || { innerTexts: "",  attributes: ""};
+        results["aggregate"] = results["aggregate"] || { innerTexts: "",  attributes: ""};
+
         var recipeName = "islogin";
 
         var all = document.getElementsByTagName("*");
@@ -18,11 +24,6 @@ void function () {
 
         for (var i=0, max = all.length; i < max; i++) {
             element = all[i];
-
-            results["form"] = results["form"] || { innerTexts: "",  attributes: "",  input_attributes: ""};
-            results["password"] = results["password"] || { count: 0 };
-            results["a"] = results["a"] || { innerTexts: "",  attributes: ""};
-            results["aggregate"] = results["aggregate"] || { innerTexts: "",  attributes: ""};
 
             if (element.nodeName == "FORM") {
                 
@@ -53,8 +54,38 @@ void function () {
             }
             results["aggregate"].attributes = normConcat(results["aggregate"].attributes, attributesToNormString(element));
         }
-
         appendResults(results);
+
+        function normalize(text) {
+            var retVal = ""
+            if (typeof(text) !== "undefined" && text != "")
+                text = text.replace(/(\r\n|\r|\n|\t)+/g, ' ');
+                text = text.replace(/\s\s+/g, ' ');
+                retVal = text.toLowerCase().replace(/[^a-z\s]+/g, '').trim();
+            return retVal.trim();
+        }
+    
+        function attributesToNormString(element) {
+            var aggregate = ""
+            if (typeof(element.attributes) !== "undefined"){ 
+                var attributes = element.attributes;    
+                for (var name in attributes) {
+                    if (typeof(attributes[name].value) !== "undefined") {
+                        aggregate += " " + attributes[name].value;
+                    }
+                }
+                // normalize string
+                aggregate = normalize(aggregate);
+            }
+            return aggregate;
+        }
+    
+        function normConcat(a, b) {
+            if (b != "") {
+                a += " " + normalize(b);
+            }
+            return a;
+        }
 
         // Add it to the document dom
         function appendResults(results) {
