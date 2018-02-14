@@ -10,51 +10,6 @@ window.debugCSSUsage = true
 
 void function () {
     document.addEventListener('DOMContentLoaded', function () {
-        var results = {};
-
-        results["form"] = results["form"] || { innerTexts: "",  attributes: "",  input_attributes: ""};
-        results["password"] = results["password"] || { count: 0 };
-        results["a"] = results["a"] || { innerTexts: "",  attributes: ""};
-        results["aggregate"] = results["aggregate"] || { innerTexts: "",  attributes: ""};
-
-        var recipeName = "islogin";
-
-        var all = document.getElementsByTagName("*");
-        var element = null;
-
-        for (var i=0, max = all.length; i < max; i++) {
-            element = all[i];
-
-            if (element.nodeName == "FORM") {
-                
-                results["form"].innerTexts = normConcat(results["form"].innerTexts, element.innerText);
-
-                for (var index in element.childNodes) {
-                    results["form"].attributes = normConcat(results["form"].attributes, attributesToNormString(element.childNodes[index]));
-                }
-            } else if (element.nodeName == "INPUT") { 
-                if (typeof(element.attributes.type) !== "undefined"){
-                    var type = element.attributes.type;
-                    if (type.value == "password") {
-                        results["password"].count++;
-                    }
-                    else {
-                        results["form"].input_attributes = normConcat(results["form"].input_attributes, attributesToNormString(element));
-                    }
-                }
-            } else if (element.nodeName == "A") {
-                results["a"].innerTexts = normConcat(results["a"].innerTexts, element.innerText);
-                results["a"].attributes = normConcat(results["a"].attributes, attributesToNormString(element));
-            } else if (element.nodeName == "HTML") {
-                results["aggregate"].innerTexts = normConcat(results["aggregate"].innerTexts, element.innerText);
-            } else if (element.nodeName == "BODY") {
-                if (results["aggregate"].innerTexts == "") {
-                    results["aggregate"].innerTexts = normConcat(results["aggregate"].innerTexts, element.innerText);
-                }
-            }
-            results["aggregate"].attributes = normConcat(results["aggregate"].attributes, attributesToNormString(element));
-        }
-        appendResults(results);
 
         function normalize(text) {
             var retVal = ""
@@ -86,7 +41,7 @@ void function () {
             }
             return a;
         }
-
+    
         // Add it to the document dom
         function appendResults(results) {
             if (window.debugCSSUsage) console.log("Trying to append");
@@ -97,7 +52,7 @@ void function () {
             document.querySelector('head').appendChild(output);
             var successfulAppend = checkAppend();
         }
-
+    
         function checkAppend() {
             if (window.debugCSSUsage) console.log("Checking append");
             var elem = document.getElementById('css-usage-tsv-results');
@@ -108,6 +63,50 @@ void function () {
                 if (window.debugCSSUsage) console.log("Element successfully found");
             }
         }
-
+    
+        var results = {};
+        results["form"] = results["form"] || { innerTexts: "",  attributes: "",  input_attributes: ""};
+        results["password"] = results["password"] || { count: 0 };
+        results["a"] = results["a"] || { innerTexts: "",  attributes: ""};
+        results["aggregate"] = results["aggregate"] || { innerTexts: "",  attributes: ""};
+    
+        var recipeName = "islogin";
+    
+        var all = document.getElementsByTagName("*");
+        var element = null;
+    
+        for (var i=0, max = all.length; i < max; i++) {
+            element = all[i];
+    
+            if (element.nodeName == "FORM") {
+                
+                results["form"].innerTexts = normConcat(results["form"].innerTexts, element.innerText);
+    
+                for (var index in element.childNodes) {
+                    results["form"].attributes = normConcat(results["form"].attributes, attributesToNormString(element.childNodes[index]));
+                }
+            } else if (element.nodeName == "INPUT") { 
+                if (typeof(element.attributes.type) !== "undefined"){
+                    var type = element.attributes.type;
+                    if (type.value == "password") {
+                        results["password"].count++;
+                    }
+                    else {
+                        results["form"].input_attributes = normConcat(results["form"].input_attributes, attributesToNormString(element));
+                    }
+                }
+            } else if (element.nodeName == "A") {
+                results["a"].innerTexts = normConcat(results["a"].innerTexts, element.innerText);
+                results["a"].attributes = normConcat(results["a"].attributes, attributesToNormString(element));
+            } else if (element.nodeName == "HTML") {
+                results["aggregate"].innerTexts = normConcat(results["aggregate"].innerTexts, element.innerText);
+            } else if (element.nodeName == "BODY") {
+                if (results["aggregate"].innerTexts == "") {
+                    results["aggregate"].innerTexts = normConcat(results["aggregate"].innerTexts, element.innerText);
+                }
+            }
+            results["aggregate"].attributes = normConcat(results["aggregate"].attributes, attributesToNormString(element));
+        }
+        appendResults(results);
     });
 }();
